@@ -1,0 +1,13 @@
+.vs/
+.vscode/
+.idea/
+bin/
+obj/
+publish/
+artifacts/
+TestResults/
+*.user
+*.suo
+*.nupkg
+*.snupkg
+*.log

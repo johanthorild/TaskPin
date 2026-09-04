@@ -64,6 +64,19 @@ public partial class MainWindowViewModel : ObservableObject
 
     public void SaveTaskEdits() => SaveTasks();
 
+    public void MoveTask(TaskItemViewModel task, TaskItemViewModel target)
+    {
+        var oldIndex = Tasks.IndexOf(task);
+        var newIndex = Tasks.IndexOf(target);
+        if (oldIndex < 0 || newIndex < 0 || oldIndex == newIndex)
+        {
+            return;
+        }
+
+        Tasks.Move(oldIndex, newIndex);
+        SaveTasks();
+    }
+
     private void AddLoadedTask(TaskRecord task)
     {
         var item = new TaskItemViewModel(task, RemoveTask);

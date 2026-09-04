@@ -4,9 +4,9 @@
   xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="TaskPin.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Width="330" Height="390"
-        MinWidth="290" MinHeight="170"
-        MaxWidth="440" MaxHeight="620"
+        Width="350" Height="450"
+        MinWidth="300" MinHeight="200"
+        MaxWidth="500" MaxHeight="700"
         Title="TaskPin"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur"
@@ -17,6 +17,7 @@
         Topmost="True">
   <Window.ContextMenu>
     <ContextMenu>
+      <MenuItem Header="Minimize" Click="Minimize_Click" />
       <MenuItem Header="Settings" Click="OpenSettings_Click" />
       <Separator />
       <MenuItem Header="Quit" Click="Quit_Click" />
@@ -29,87 +30,139 @@
           BorderBrush="#3FFFFFFF"
           BorderThickness="1"
           CornerRadius="7">
-    <Grid RowDefinitions="12,Auto,*,Auto">
-      <Grid Grid.Row="0"
-            Margin="8,0"
-        Background="Transparent" />
+    <Grid>
+      <Grid RowDefinitions="30,Auto,*,Auto">
+        <Grid Grid.Row="0"
+              Margin="8,0"
+              Background="Transparent">
+          <Button HorizontalAlignment="Right"
+                  Classes="icon"
+                  Width="26"
+                  Height="26"
+                  Click="Minimize_Click"
+                  ToolTip.Tip="Minimize">
+            <materialIcons:MaterialIcon Kind="WindowMinimize" Width="16" Height="16" />
+          </Button>
+        </Grid>
 
-      <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="12,0,12,12">
-        <TextBox Grid.Column="0"
-                 Text="{Binding NewTaskText}"
-                 Watermark="Add a task..."
-                 Height="38"
-                 Padding="11,7"
-                 CornerRadius="4"
-                 BorderBrush="#3FFFFFFF"
-                 KeyDown="NewTask_KeyDown" />
-        <Button Grid.Column="1"
-                Command="{Binding AddTaskCommand}"
-                Content="+"
-                Width="38" Height="38"
-                Margin="7,0,0,0"
-                Padding="0"
-                HorizontalContentAlignment="Center"
-                VerticalContentAlignment="Center"
-                FontSize="20"
-                Background="{StaticResource AccentBrush}"
-                Foreground="#FF10251E"
-                ToolTip.Tip="Add task" />
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="12,0,12,12">
+          <TextBox Grid.Column="0"
+                   Text="{Binding NewTaskText}"
+                   Watermark="Add a task..."
+                   Height="38"
+                   Padding="11,7"
+                   CornerRadius="4"
+                   BorderBrush="#3FFFFFFF"
+                   KeyDown="NewTask_KeyDown" />
+          <Button Grid.Column="1"
+                  Command="{Binding AddTaskCommand}"
+                  Content="+"
+                  Width="38" Height="38"
+                  Margin="7,0,0,0"
+                  Padding="0"
+                  HorizontalContentAlignment="Center"
+                  VerticalContentAlignment="Center"
+                  FontSize="20"
+                  Background="{StaticResource AccentBrush}"
+                  Foreground="#FF10251E"
+                  ToolTip.Tip="Add task" />
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="8,0">
+          <TextBlock Text="No tasks"
+                     IsVisible="{Binding IsEmpty}"
+                     Foreground="{StaticResource MutedBrush}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" />
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Tasks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:TaskItemViewModel">
+                  <Border Margin="4,0,4,6"
+                          Padding="6,5"
+                          CornerRadius="4"
+                          Background="{StaticResource SurfaceBrush}"
+                          DragDrop.AllowDrop="True">
+                    <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                      <Border Grid.Column="0"
+                              Classes="taskDragHandle"
+                              Width="24"
+                              Background="Transparent"
+                              Cursor="SizeAll"
+                              PointerPressed="TaskDragHandle_PointerPressed"
+                              ToolTip.Tip="Drag to reorder">
+                        <materialIcons:MaterialIcon Kind="DragVertical"
+                                                    Width="16"
+                                                    Height="16"
+                                                    Foreground="{StaticResource MutedBrush}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center" />
+                      </Border>
+                      <CheckBox Grid.Column="1"
+                                IsChecked="{Binding IsCompleted}"
+                                VerticalAlignment="Center" />
+                      <TextBox Grid.Column="2"
+                               Text="{Binding Text}"
+                               GotFocus="TaskTextBox_GotFocus"
+                               LostFocus="TaskTextBox_LostFocus"
+                               Margin="3,0"
+                               Padding="4"
+                               MinHeight="30"
+                               Background="Transparent"
+                               BorderThickness="0"
+                               TextWrapping="Wrap"
+                               VerticalContentAlignment="Center" />
+                      <Button Grid.Column="3"
+                              Classes="icon"
+                              Command="{Binding DeleteCommand}"
+                              Content="X"
+                              FontSize="12"
+                              Foreground="{StaticResource MutedBrush}"
+                              ToolTip.Tip="Delete task" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="8,5,8,8">
+          <Button Grid.Column="1"
+                  Classes="icon"
+                  Command="{Binding ClearCompletedCommand}"
+                  Foreground="{StaticResource MutedBrush}"
+                  ToolTip.Tip="Clear completed tasks">
+            <materialIcons:MaterialIcon Kind="PlaylistRemove" Width="18" Height="18" />
+          </Button>
+        </Grid>
       </Grid>
 
-      <Grid Grid.Row="2" Margin="8,0">
-        <TextBlock Text="No tasks"
-                   IsVisible="{Binding IsEmpty}"
-                   Foreground="{StaticResource MutedBrush}"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-          <ItemsControl ItemsSource="{Binding Tasks}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:TaskItemViewModel">
-                <Border Margin="4,0,4,6"
-                        Padding="8,5"
-                        CornerRadius="4"
-                        Background="{StaticResource SurfaceBrush}">
-                  <Grid ColumnDefinitions="Auto,*,Auto">
-                    <CheckBox Grid.Column="0"
-                              IsChecked="{Binding IsCompleted}"
-                              VerticalAlignment="Center" />
-                    <TextBox Grid.Column="1"
-                             Text="{Binding Text}"
-                             GotFocus="TaskTextBox_GotFocus"
-                             LostFocus="TaskTextBox_LostFocus"
-                             Margin="3,0"
-                             Padding="4"
-                             MinHeight="30"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             TextWrapping="Wrap"
-                             VerticalContentAlignment="Center" />
-                    <Button Grid.Column="2"
-                            Classes="icon"
-                            Command="{Binding DeleteCommand}"
-                            Content="X"
-                            FontSize="12"
-                            Foreground="{StaticResource MutedBrush}"
-                            ToolTip.Tip="Delete task" />
-                  </Grid>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </ScrollViewer>
-      </Grid>
+      <Canvas Name="DragPreviewLayer"
+              IsVisible="False"
+              IsHitTestVisible="False">
+        <Border Name="TaskDragPreview"
+                Width="230"
+                Padding="12,9"
+                CornerRadius="4"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource AccentBrush}"
+                BorderThickness="1"
+                Opacity="0.88">
+          <TextBlock Name="TaskDragPreviewText"
+                     TextWrapping="Wrap"
+                     MaxHeight="48" />
+        </Border>
+      </Canvas>
 
-      <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="8,5,8,8">
-        <Button Grid.Column="1"
-                Classes="icon"
-                Command="{Binding ClearCompletedCommand}"
-                Foreground="{StaticResource MutedBrush}"
-                ToolTip.Tip="Clear completed tasks">
-          <materialIcons:MaterialIcon Kind="PlaylistRemove" Width="18" Height="18" />
-        </Button>
-      </Grid>
+      <Border Classes="resizeGrip" Tag="North" Height="8" Background="Transparent" VerticalAlignment="Top" Cursor="SizeNorthSouth" PointerPressed="ResizeGrip_PointerPressed" />
+      <Border Classes="resizeGrip" Tag="South" Height="8" Background="Transparent" VerticalAlignment="Bottom" Cursor="SizeNorthSouth" PointerPressed="ResizeGrip_PointerPressed" />
+      <Border Classes="resizeGrip" Tag="West" Width="8" Background="Transparent" HorizontalAlignment="Left" Cursor="SizeWestEast" PointerPressed="ResizeGrip_PointerPressed" />
+      <Border Classes="resizeGrip" Tag="East" Width="8" Background="Transparent" HorizontalAlignment="Right" Cursor="SizeWestEast" PointerPressed="ResizeGrip_PointerPressed" />
+      <Border Classes="resizeGrip" Tag="NorthWest" Width="14" Height="14" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="TopLeftCorner" PointerPressed="ResizeGrip_PointerPressed" />
+      <Border Classes="resizeGrip" Tag="NorthEast" Width="14" Height="14" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="TopRightCorner" PointerPressed="ResizeGrip_PointerPressed" />
+      <Border Classes="resizeGrip" Tag="SouthWest" Width="14" Height="14" Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="BottomLeftCorner" PointerPressed="ResizeGrip_PointerPressed" />
+      <Border Classes="resizeGrip" Tag="SouthEast" Width="14" Height="14" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="BottomRightCorner" PointerPressed="ResizeGrip_PointerPressed" />
     </Grid>
   </Border>
 </Window>
